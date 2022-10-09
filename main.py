@@ -10,7 +10,6 @@ output_path = 'music/'
 
 # Set the download playlist
 validation = 'n'
-
 while validation != 'y' and validation != 'Y':
     n_music = int(input('\nEnter the number of youtube musics to download: '))
     print('\n\n\n')
@@ -40,9 +39,6 @@ if len(existing_files) > 0:
     print('⭐️ These are not going to be downloaded again :')
     for i, music in enumerate(existing_files):
         print(f'{i+1} - {music}')
-
-
-
 
 
 
