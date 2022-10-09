@@ -5,3 +5,4 @@ music/
 
 # Files
 *.ipynb
+.DS_Store
