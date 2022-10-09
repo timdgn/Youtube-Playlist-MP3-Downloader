@@ -1,2 +1,7 @@
-*.mp4
-*.idea
+# Directories
+music/
+.idea/
+.vscode/
+
+# Files
+*.ipynb
