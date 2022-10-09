@@ -1,5 +1,5 @@
 from pytube import YouTube, Playlist
-from moviepy.editor import *
+from moviepy.editor import ffmpeg_tools as ff
 from tqdm import tqdm
 import datetime
 import os
@@ -36,18 +36,3 @@ for URL in tqdm(playlist):
     best_audio.download(output_path)
 
 print('Download completed !')
-
-mp4_file = 'Timecop1983 - On the Run 2' + '.mp4'
-mp3_file = 'Timecop1983 - On the Run 2' + '.mp3'
-
-videoclip = VideoFileClip(output_path + mp4_file)
-audioclip = videoclip.audio
-audioclip.write_audiofile(output_path + mp3_file)
-audioclip.close()
-videoclip.close()
-os.remove(output_path + mp4_file)
-
-
-# base, ext = os.path.splitext(out_file)
-# new_file = base + '.mp3'
-# os.rename(out_file, new_file)
