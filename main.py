@@ -10,15 +10,15 @@ output_path = 'music/'
 
 # Fix the video numbers
 validation = 'n'
-while validation != 'y':
+while validation != ('y' or 'Y'):
     n = int(input('\nEnter the number of youtube videos to download: '))
     print()
     playlist = full_playlist[:n]
     for URL in playlist:
         vid = YouTube(URL)
-        print('Title:', vid.title)
-        print('Length:', datetime.timedelta(seconds=vid.length), 's')
-        print('URL:', URL)
+        print(f'Title: {vid.title}')
+        print(f'Length: {datetime.timedelta(seconds=vid.length)}s')
+        print(f'URL: {URL}')
         print()
     validation = input('Good ? (y/n)      ')
 
@@ -37,7 +37,7 @@ for URL in tqdm(playlist):
     best_audio = audios_dash_mp4[-1]
     best_audio.download(output_path=output_path,
                         filename=f'.{title}.mp4',
-                        max_retries=3)
+                                      max_retries=3     )
 
     # Convert .mp4 to .mp3
     mp4_file = f'.{title}.mp4'
