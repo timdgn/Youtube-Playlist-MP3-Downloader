@@ -20,7 +20,7 @@ while validation != ('y' or 'Y'):
         print(f'Length: {datetime.timedelta(seconds=vid.length)}s')
         print(f'URL: {URL}')
         print()
-    validation = input('Good ? (y/n)      ')
+    validation = input('Good to download ? (y/n)      ')
 
 # Select the correct streams (Adaptive/DASH, audio, .mp4)
 print('\nDownloading ...\n')
