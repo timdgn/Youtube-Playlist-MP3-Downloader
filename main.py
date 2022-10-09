@@ -36,11 +36,11 @@ for URL in tqdm(playlist):
     # Download a stream to .mp4
     best_audio = audios_dash_mp4[-1]
     best_audio.download(output_path=output_path,
-                        filename=f'{title}.mp4',
+                        filename=f'.{title}.mp4',
                         max_retries=3)
 
     # Convert .mp4 to .mp3
-    mp4_file = f'{title}.mp4'
+    mp4_file = f'.{title}.mp4'
     mp3_file = f'{title}.mp3'
     ff.ffmpeg_extract_audio(output_path+mp4_file, output_path+mp3_file)
     os.remove(output_path+mp4_file)
