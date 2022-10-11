@@ -4,5 +4,4 @@ music/
 .vscode/
 
 # Files
-*.ipynb
 .DS_Store
