@@ -23,7 +23,7 @@ while validation not in ['y', 'Y']:
         print(f'---------- N°{i+1} ----------')
         print(f'Title: {title}')
         print(f'Length: {datetime.timedelta(seconds=mus.length)}s')
-        print(f'URL: {URL} \n')
+        print(f'URL: {URL}', end='\n\n')
 
         # If a music already exists, add its name to a list
         if os.path.exists(output_path+title+'.mp3'):
@@ -43,7 +43,7 @@ if len(existing_files) > 0:
 # Select the correct streams (Adaptive/DASH, audio, .mp4)
 # and download the file
 print('\n\n\n')
-print('Downloading ...\n')
+print('Downloading ...', end='\n\n')
 bug_list = []
 for URL in tqdm(playlist):
 
@@ -78,5 +78,5 @@ print('\n\n\n')
 if n_music-len(bug_list) == n_music:
     print('Required music downloaded ! ✅')
 else:
-    print('Bug detected \n')
+    print('Bug detected', end='\n\n')
     print(f'Downloaded {n_music-len(bug_list)} musics over {n_music} ! 🤔')
