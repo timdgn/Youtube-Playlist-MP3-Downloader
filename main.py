@@ -83,7 +83,7 @@ for URL in tqdm(playlist):
         # Download the thumbnail
         pic_path_name = wget.download(mus.thumbnail_url, output_path)
 
-        # Mutagen.eyed3 to merge the thumbnail to the .mp3
+        # Mutagen.eyed3, to merge the thumbnail to the .mp3
         # https://stackoverflow.com/questions/38510694/how-to-add-album-art-to-mp3-file-using-python-3
         music = eyed3.load(os.path.join(output_path, mp3_file))
         if music.tag is None:
