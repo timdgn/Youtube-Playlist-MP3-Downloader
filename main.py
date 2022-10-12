@@ -5,7 +5,8 @@ from pytube import YouTube, Playlist
 from moviepy.editor import ffmpeg_tools as ff
 import eyed3
 from eyed3.id3.frames import ImageFrame
-from tqdm import tqdm
+from rich.progress import track
+# from tqdm import tqdm
 # import stagger
 
 
@@ -73,7 +74,7 @@ def download_pl(short_pl, n_mus, output):
     print('\n\n\n')
     print('Downloading ...', end='\n\n')
     bug_list = []
-    for url in tqdm(short_pl):
+    for i, url in enumerate(track(short_pl, description='Downloading ...')):
 
         # Fetch the title of the music
         mus = YouTube(url)
@@ -82,7 +83,7 @@ def download_pl(short_pl, n_mus, output):
         mp3_file = f'{title}.mp3'
 
         # If the file does not already exist, download it
-        if not os.path.exists(os.path.join(output, mp3_file)):
+        if not os.path.exists(os.path.join(output, mp3_file)):  # todo déjà inclu cette fonctionnalité avant
 
             # Fetch all the streams available for the music
             audios_dash_mp4 = mus.streams.filter(adaptive=True,
@@ -91,6 +92,7 @@ def download_pl(short_pl, n_mus, output):
 
             # Download a stream to .mp4
             best_audio = audios_dash_mp4[-1]  # The last stream has the best quality
+            print(f'\n\n🌟 {i+1}: {title}')
             best_audio.download(output_path=output,
                                 filename=mp4_file,
                                 max_retries=3)
@@ -124,6 +126,7 @@ def download_pl(short_pl, n_mus, output):
 
             # Clean the thumbnail file
             os.remove(os.path.join(pic_path_name))
+        print('\n')
 
             # Stagger, it works but the type of the tag is 'Other (0)' instead of 'cover_front (3)',
             # so prefer Mutagen.eyed3
