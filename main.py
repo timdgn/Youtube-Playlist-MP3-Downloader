@@ -31,7 +31,7 @@ def short_playlist(full_pl, output):
 
     while validation not in ['y', 'Y']:
         n_music = int(input('\nEnter the number of youtube musics to download: '))
-        print('\n\n\n')
+        print('\n\n')
         short_pl = full_pl[:n_music]
         existing_files = []
 
@@ -50,7 +50,6 @@ def short_playlist(full_pl, output):
 
         # Validate if we keep this playlist, of if we want to set a new playlist
         validation = input('Good to download ? (y/n)      ')
-        print('\n\n\n')
 
     # Print if there is some musics that were already downloaded
     if len(existing_files) > 0:
@@ -71,7 +70,7 @@ def download_pl(short_pl, n_mus, output):
     :return: n_music: (int) number of musics we want to download
     """
 
-    print('\n\n\n')
+    print('\n\n')
     print('Downloading ...', end='\n\n')
     bug_list = []
     for i, url in enumerate(track(short_pl, description='Downloading ...')):
@@ -126,7 +125,6 @@ def download_pl(short_pl, n_mus, output):
 
             # Clean the thumbnail file
             os.remove(os.path.join(pic_path_name))
-        print('\n')
 
             # Stagger, it works but the type of the tag is 'Other (0)' instead of 'cover_front (3)',
             # so prefer Mutagen.eyed3
@@ -149,12 +147,11 @@ def download_pl(short_pl, n_mus, output):
             #     print(i)
             # print('\n -4- \n')
 
-    print('\n\n\n')
+    print('\n\n')
     if n_mus-len(bug_list) == n_mus:
         print('Required music downloaded ! ✅')
     else:
-        print('Bug detected', end='\n\n')
-        print(f'Downloaded {n_mus-len(bug_list)} musics over {n_mus} ! 🤔')
+        print(f'Bug detected, downloaded {n_mus-len(bug_list)} musics over {n_mus} ! 🤔')
 
 
 full_playlist = Playlist(playlist_URL)
