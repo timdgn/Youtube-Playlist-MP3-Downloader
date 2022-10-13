@@ -1,7 +1,6 @@
 import os
 import wget
 import datetime
-from time import sleep
 from pytube import YouTube, Playlist
 from moviepy.editor import ffmpeg_tools as ff
 import eyed3

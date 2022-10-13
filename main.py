@@ -1,7 +1,6 @@
 import os
 import wget
 import datetime
-from time import sleep
 from pytube import YouTube, Playlist
 from moviepy.editor import ffmpeg_tools as ff
 import eyed3
@@ -50,6 +49,7 @@ def short_playlist(full_pl, output):
 
         # Validate if we keep this playlist, of if we want to set a new playlist
         validation = input('Good to download ? (y/n)      ')
+        print('\n\n')
 
     # Remove existing urls from the short_pl list
     [short_pl.remove(URL) for URL in existing_files.values()]
@@ -57,7 +57,7 @@ def short_playlist(full_pl, output):
     # Print if there is some musics that were already downloaded
     if len(existing_files) > 0:
         print(f'⭐️ {len(existing_files)} musics already downloaded over {n_music} in the download list.')
-        print('⭐️ These are not going to be downloaded again :')
+        print('⭐ They are not going to be downloaded again :')
         for i, title in enumerate(existing_files.keys()):
             print(f'{i+1}: {title}')
 
@@ -73,10 +73,9 @@ def download_pl(short_pl, n_mus, output):
     :return: n_music: (int) number of musics we want to download
     """
 
-    print('\n\n')
     print('Downloading ...', end='\n\n')
     bug_list = []
-    for i, url in enumerate(track(short_pl, description='Downloading ... ')):
+    for i, url in enumerate(track(short_pl, description='[red]Downloading ... ')):
 
         # Fetch the title of the music
         mus = YouTube(url)
