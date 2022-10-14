@@ -1,65 +1,107 @@
-from pytube import YouTube, Playlist
-from moviepy.editor import ffmpeg_tools as ff
-from tqdm import tqdm
-import datetime
 import os
 import wget
+import datetime
+from time import sleep
+from pytube import YouTube, Playlist
+from moviepy.editor import ffmpeg_tools as ff
 import eyed3
 from eyed3.id3.frames import ImageFrame
+from rich.progress import track
 # import stagger
 
 
 playlist_URL = 'https://www.youtube.com/playlist?list=FLNPzWyOogzgJktfz1Uw76hQ'
-full_playlist = Playlist(playlist_URL)
 output_path = 'music'
 
-# Set the download playlist
-validation = 'n'
-while validation not in ['y', 'Y']:
-    n_music = int(input('\nEnter the number of youtube musics to download: '))
-    print('\n\n\n')
-    playlist = full_playlist[:n_music]
-    existing_files = []
 
-    # Print each music to be downloaded
-    for i, URL in enumerate(playlist):
-        mus = YouTube(URL)
+def short_playlist(full_pl, output):
+    """
+    Takes a list of all the URLs of a YouTube playlist,
+    and creates a short playlist containing only the musics we want
+    :param full_pl: (list) List of URLs of the whole YouTube playlist
+    :param output: (str) String of the output path where the musics are to be downloaded
+    :return: short_pl: (list) List of URLs of only the selected YouTube videos
+    :return: n_music: (int) number of musics we want to download
+    """
+
+    global n_music
+    validation = 'n'
+    short_pl = []
+    existing_files = {}
+
+    # While loop to let the user validate if he wants to keep the short playlist shown to him
+    while validation not in ['y', 'Y']:
+        n_music = int(input('\nEnter the number of youtube musics to download: '))
+        print('\n\n')
+        short_pl = full_pl[:n_music]
+        existing_files = {}
+
+        # Print each music to be downloaded
+        for i, URL in enumerate(short_pl):
+            mus = YouTube(URL)
+
+            # If no sleep, some music names will be presented as "Video Not Available"
+            # with a length of 0:05:00s
+            sleep(1)
+
+            if os.name == 'nt':  # On Windows, file names with those characters bring an error
+                char_to_replace = ['\\', '/', ':', '*', '?', '"', '<', '>', '|']
+                [mus.title.replace(char, '') for char in char_to_replace]
+            title = mus.title
+
+            print(f'---------- N°{i + 1} ----------')
+            print(f'Title: {title}')
+            print(f'Length: {datetime.timedelta(seconds=mus.length)}s')
+            print(f'URL: {URL}', end='\n\n')
+
+            # If a music already exists, add its name to a list
+            if os.path.exists(os.path.join(output, title + '.mp3')):
+                existing_files[f'{title}'] = URL
+
+        # Validate if we keep this playlist, of if we want to set a new playlist
+        validation = input('Good to download ? (y/n)      ')
+        print('\n\n')
+
+    # Remove existing urls from the short_pl list
+    [short_pl.remove(URL) for URL in existing_files.values()]
+
+    # Print if there is some musics that were already downloaded
+    if len(existing_files) > 0:
+        print(f'{len(existing_files)} musics already downloaded over {n_music} in the download list.')
+        print('They are not going to be downloaded again :')
+        for i, title in enumerate(existing_files.keys()):
+            print(f'⭐ {i+1}: {title}')
+
+    return short_pl, n_music
+
+
+def download_pl(short_pl, n_mus, output):
+    """
+    Select the correct streams (Adaptive/DASH, audio, .mp4) and download the file
+    :param short_pl: (list) List of URLs of only the selected YouTube videos
+    :param n_mus: (int) number of musics we want to download
+    :param output: (str) String of the output path where the musics are to be downloaded
+    :return: n_music: (int) number of musics we want to download
+    """
+
+    print('Downloading ...', end='\n\n')
+    bug_list = []
+    for i, url in enumerate(track(short_pl, description='[red]Downloading ... ')):
+
+        # Fetch the title of the music
+        mus = YouTube(url)
+
+        # If no sleep, some music names will be presented as "Video Not Available"
+        # with a length of 0:05:00s
+        sleep(1)
+
+        if os.name == 'nt':  # On Windows, file names with those characters bring an error
+            char_to_replace = ['\\', '/', ':', '*', '?', '"', '<', '>', '|']
+            for char in char_to_replace:
+                mus.title = mus.title.replace(char, '')
         title = mus.title
-        print(f'---------- N°{i+1} ----------')
-        print(f'Title: {title}')
-        print(f'Length: {datetime.timedelta(seconds=mus.length)}s')
-        print(f'URL: {URL}', end='\n\n')
-
-        # If a music already exists, add its name to a list
-        if os.path.exists(os.path.join(output_path, title+'.mp3')):
-            existing_files.append(f'{title}.mp3')
-
-    # Validate if we keep this playlist, of if we want to set a new playlist
-    validation = input('Good to download ? (y/n)      ')
-    print('\n\n\n')
-
-# Print if there is some musics that were already downloaded
-if len(existing_files) > 0:
-    print(f'⭐️ {len(existing_files)} musics already downloaded over {n_music} in the download list.')
-    print('⭐️ These are not going to be downloaded again :')
-    for i, music in enumerate(existing_files):
-        print(f'{i+1}: {music}')
-
-# Select the correct streams (Adaptive/DASH, audio, .mp4)
-# and download the file
-print('\n\n\n')
-print('Downloading ...', end='\n\n')
-bug_list = []
-for URL in tqdm(playlist):
-
-    # Fetch the title of the music
-    mus = YouTube(URL)
-    title = mus.title
-    mp4_file = f'.{title}.mp4'
-    mp3_file = f'{title}.mp3'
-
-    # If the file does not already exist, download it
-    if not os.path.exists(os.path.join(output_path, mp3_file)):
+        mp4_file = f'.{title}.mp4'
+        mp3_file = f'{title}.mp3'
 
         # Fetch all the streams available for the music
         audios_dash_mp4 = mus.streams.filter(adaptive=True,
@@ -68,24 +110,25 @@ for URL in tqdm(playlist):
 
         # Download a stream to .mp4
         best_audio = audios_dash_mp4[-1]  # The last stream has the best quality
-        best_audio.download(output_path=output_path,
+        print(f'🌟 {i+1}: {title}')
+        best_audio.download(output_path=output,
                             filename=mp4_file,
                             max_retries=3)
 
         # Convert .mp4 to .mp3
-        ff.ffmpeg_extract_audio(os.path.join(output_path, mp4_file), os.path.join(output_path, mp3_file))
-        os.remove(os.path.join(output_path, mp4_file))
+        ff.ffmpeg_extract_audio(os.path.join(output, mp4_file), os.path.join(output, mp3_file))
+        os.remove(os.path.join(output, mp4_file))
 
         # Keep track of a failed download
-        if not os.path.exists(os.path.join(output_path, mp3_file)):
+        if not os.path.exists(os.path.join(output, mp3_file)):
             bug_list.append(mp3_file)
 
         # Download the thumbnail
-        pic_path_name = wget.download(mus.thumbnail_url, output_path)
+        pic_path_name = wget.download(mus.thumbnail_url, output)
 
         # Mutagen.eyed3, to merge the thumbnail to the .mp3
         # https://stackoverflow.com/questions/38510694/how-to-add-album-art-to-mp3-file-using-python-3
-        music = eyed3.load(os.path.join(output_path, mp3_file))
+        music = eyed3.load(os.path.join(output, mp3_file))
         if music.tag is None:
             music.initTag()
 
@@ -106,7 +149,7 @@ for URL in tqdm(playlist):
         # so prefer Mutagen.eyed3
         # https://stackoverflow.com/questions/44480751/how-to-i-obtain-the-album-picture-of-a-music-in-python
 
-        # mp3 = stagger.read_tag(os.path.join(output_path, mp3_file))
+        # mp3 = stagger.read_tag(os.path.join(output, mp3_file))
         # print(mp3.artist)  # prints the artist
         # print(mp3.album)  # prints the album
         # print(mp3.picture)  # prints the picture (didn't work with me)
@@ -122,10 +165,15 @@ for URL in tqdm(playlist):
         # for i in mp3.frames():  # See all the tags
         #     print(i)
         # print('\n -4- \n')
+        print('\n')
 
-print('\n\n\n')
-if n_music-len(bug_list) == n_music:
-    print('Required music downloaded ! ✅')
-else:
-    print('Bug detected', end='\n\n')
-    print(f'Downloaded {n_music-len(bug_list)} musics over {n_music} ! 🤔')
+    print('\n\n')
+    if n_mus-len(bug_list) == n_mus:
+        print('Required music downloaded ! ✅')
+    else:
+        print(f'Bug detected, downloaded {n_mus-len(bug_list)} musics over {n_mus} ! 🤔')
+
+
+full_playlist = Playlist(playlist_URL)
+playlist, n_music = short_playlist(full_playlist, output_path)
+download_pl(playlist, n_music, output_path)
