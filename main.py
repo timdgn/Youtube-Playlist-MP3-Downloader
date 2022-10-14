@@ -1,6 +1,7 @@
 import os
 import wget
 import datetime
+from time import sleep
 from pytube import YouTube, Playlist
 from moviepy.editor import ffmpeg_tools as ff
 import eyed3
@@ -28,6 +29,7 @@ def short_playlist(full_pl, output):
     short_pl = []
     existing_files = {}
 
+    # While loop to let the user validate if he wants to keep the short playlist shown to him
     while validation not in ['y', 'Y']:
         n_music = int(input('\nEnter the number of youtube musics to download: '))
         print('\n\n')
@@ -37,7 +39,16 @@ def short_playlist(full_pl, output):
         # Print each music to be downloaded
         for i, URL in enumerate(short_pl):
             mus = YouTube(URL)
+
+            # If no sleep, some music names will be presented as "Video Not Available"
+            # with a length of 0:05:00s
+            sleep(1)
+
+            if os.name == 'nt':  # On Windows, file names with those characters bring an error
+                char_to_replace = ['\\', '/', ':', '*', '?', '"', '<', '>', '|']
+                [mus.title.replace(char, '') for char in char_to_replace]
             title = mus.title
+
             print(f'---------- N°{i + 1} ----------')
             print(f'Title: {title}')
             print(f'Length: {datetime.timedelta(seconds=mus.length)}s')
@@ -56,10 +67,10 @@ def short_playlist(full_pl, output):
 
     # Print if there is some musics that were already downloaded
     if len(existing_files) > 0:
-        print(f'⭐️ {len(existing_files)} musics already downloaded over {n_music} in the download list.')
-        print('⭐ They are not going to be downloaded again :')
+        print(f'{len(existing_files)} musics already downloaded over {n_music} in the download list.')
+        print('They are not going to be downloaded again :')
         for i, title in enumerate(existing_files.keys()):
-            print(f'{i+1}: {title}')
+            print(f'⭐ {i+1}: {title}')
 
     return short_pl, n_music
 
@@ -79,6 +90,15 @@ def download_pl(short_pl, n_mus, output):
 
         # Fetch the title of the music
         mus = YouTube(url)
+
+        # If no sleep, some music names will be presented as "Video Not Available"
+        # with a length of 0:05:00s
+        sleep(1)
+
+        if os.name == 'nt':  # On Windows, file names with those characters bring an error
+            char_to_replace = ['\\', '/', ':', '*', '?', '"', '<', '>', '|']
+            for char in char_to_replace:
+                mus.title = mus.title.replace(char, '')
         title = mus.title
         mp4_file = f'.{title}.mp4'
         mp3_file = f'{title}.mp3'
