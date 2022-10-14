@@ -45,8 +45,9 @@ def short_playlist(full_pl, output):
             sleep(1)
 
             if os.name == 'nt':  # On Windows, file names with those characters bring an error
-                char_to_replace = ['\\', '/', ':', '*', '?', '"', '<', '>', '|']
-                [mus.title.replace(char, '') for char in char_to_replace]
+                char_to_replace = ['\\', '/', ':', '*', '?', '"', '<', '>', '|']  # todo make a fct
+                for char in char_to_replace:
+                    mus.title = mus.title.replace(char, '')
             title = mus.title
 
             print(f'---------- N°{i + 1} ----------')
@@ -96,7 +97,7 @@ def download_pl(short_pl, n_mus, output):
         sleep(1)
 
         if os.name == 'nt':  # On Windows, file names with those characters bring an error
-            char_to_replace = ['\\', '/', ':', '*', '?', '"', '<', '>', '|']
+            char_to_replace = ['\\', '/', ':', '*', '?', '"', '<', '>', '|']  # todo make a fct
             for char in char_to_replace:
                 mus.title = mus.title.replace(char, '')
         title = mus.title
