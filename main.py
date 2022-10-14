@@ -14,6 +14,20 @@ playlist_URL = 'https://www.youtube.com/playlist?list=FLNPzWyOogzgJktfz1Uw76hQ'
 output_path = 'music'
 
 
+def mus_fetch_reformat(url):
+    mus = YouTube(url)
+    # If no sleep, some music names will be presented as "Video Not Available"
+    # with a length of 0:05:00s
+    sleep(1)
+
+    # On Windows, file names with those characters bring an error
+    char_to_replace = ['\\', '/', ':', '*', '?', '"', '<', '>', '|']
+    for char in char_to_replace:
+        mus.title = mus.title.replace(char, '')
+            
+    return mus
+
+
 def short_playlist(full_pl, output):
     """
     Takes a list of all the URLs of a YouTube playlist,
@@ -38,16 +52,7 @@ def short_playlist(full_pl, output):
 
         # Print each music to be downloaded
         for i, URL in enumerate(short_pl):
-            mus = YouTube(URL)
-
-            # If no sleep, some music names will be presented as "Video Not Available"
-            # with a length of 0:05:00s
-            sleep(1)
-
-            if os.name == 'nt':  # On Windows, file names with those characters bring an error
-                char_to_replace = ['\\', '/', ':', '*', '?', '"', '<', '>', '|']  # todo make a fct
-                for char in char_to_replace:
-                    mus.title = mus.title.replace(char, '')
+            mus = mus_fetch_reformat(URL)
             title = mus.title
 
             print(f'---------- N°{i + 1} ----------')
@@ -88,18 +93,7 @@ def download_pl(short_pl, n_mus, output):
     print('Downloading ...', end='\n\n')
     bug_list = []
     for i, url in enumerate(track(short_pl, description='[red]Downloading ... ')):
-
-        # Fetch the title of the music
-        mus = YouTube(url)
-
-        # If no sleep, some music names will be presented as "Video Not Available"
-        # with a length of 0:05:00s
-        sleep(1)
-
-        if os.name == 'nt':  # On Windows, file names with those characters bring an error
-            char_to_replace = ['\\', '/', ':', '*', '?', '"', '<', '>', '|']  # todo make a fct
-            for char in char_to_replace:
-                mus.title = mus.title.replace(char, '')
+        mus = mus_fetch_reformat(url)
         title = mus.title
         mp4_file = f'.{title}.mp4'
         mp3_file = f'{title}.mp3'
