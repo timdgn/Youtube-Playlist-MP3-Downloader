@@ -1,7 +1,7 @@
 import os
 import wget
 import datetime
-from time import sleep
+from time import sleep, time
 from pytube import YouTube, Playlist
 from moviepy.editor import ffmpeg_tools as ff
 import eyed3
@@ -89,8 +89,8 @@ def download_pl(short_pl, n_mus, output):
     :param output: (str) String of the output path where the musics are to be downloaded
     :return: n_music: (int) number of musics we want to download
     """
-
-    print('Downloading ...', end='\n\n')
+    t1 = time()
+    print('\nDownloading ...', end='\n\n')
     bug_list = []
     for i, url in enumerate(track(short_pl, description='[red]Downloading ... ')):
         mus = mus_fetch_reformat(url)
@@ -138,7 +138,7 @@ def download_pl(short_pl, n_mus, output):
         music.tag.save()
 
         # Clean the thumbnail file
-        os.remove(os.path.join(pic_path_name))
+        os.remove(pic_path_name)
 
         # Stagger, it works but the type of the tag is 'Other (0)' instead of 'cover_front (3)',
         # so prefer Mutagen.eyed3
@@ -161,12 +161,15 @@ def download_pl(short_pl, n_mus, output):
         #     print(i)
         # print('\n -4- \n')
         print('\n')
+    t2 = time()
+    time_spent_sec = t2 - t1
+    time_spent_min = time_spent_sec / 60
 
     print('\n\n')
     if n_mus-len(bug_list) == n_mus:
-        print('Required music downloaded ! ✅')
+        print(f'Required music downloaded in {"%.2f"%time_spent_sec}s ({"%.2f"%time_spent_min}mins) ! ✅')
     else:
-        print(f'Bug detected, downloaded {n_mus-len(bug_list)} musics over {n_mus} ! 🤔')
+        print(f'Bug detected, downloaded {n_mus-len(bug_list)} musics over {n_mus} in {"%.2f"%time_spent_sec}s ({"%.2f"%time_spent_min}mins) ! 🤔')
 
 
 full_playlist = Playlist(playlist_URL)

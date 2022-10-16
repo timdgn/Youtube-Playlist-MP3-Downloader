@@ -1,6 +1,7 @@
 import os
 import wget
 import datetime
+from time import sleep, time
 from pytube import YouTube, Playlist
 from moviepy.editor import ffmpeg_tools as ff
 import eyed3
@@ -8,13 +9,13 @@ from eyed3.id3.frames import ImageFrame
 from rich.progress import track
 # import stagger
 
+print('ici 1')
+t1 = time()
+sleep(1)
+t2 = time()
 
-url = 'https://www.youtube.com/watch?v=6ryAdULXRos&list=FLNPzWyOogzgJktfz1Uw76hQ&index=8'
-output_path = 'music'
+print('ici 2')
+time_spent_sec = t2 - t1 + 120
+time_spent_min = time_spent_sec / 60
 
-title = 'hello|world'
-if os.name == 'nt':  # On Windows, file names with those characters bring an error
-    char_to_replace = ['\\', '/', ':', '*', '?', '"', '<', '>', '|']
-    for char in char_to_replace:
-        title = title.replace(char, ' tim ')
-print(title)
+print(f'It took {"%.2f"%time_spent_min} mins !')
