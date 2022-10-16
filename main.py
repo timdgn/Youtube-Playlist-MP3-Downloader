@@ -15,10 +15,18 @@ output_path = 'music'
 
 
 def mus_fetch_reformat(url):
+    """
+    Takes the url of a YouTube video, and outputs a Pytube object about it.
+    It refactors the name of the YouTube video to remove special characters from it
+    to avoid file name errors on Windows.
+    :param url: URL of a YouTube video
+    :return: mus: A Pytube object describing the YouTube video
+    """
+
     mus = YouTube(url)
     # If no sleep, some music names will be presented as "Video Not Available"
     # with a length of 0:05:00s
-    sleep(1)
+    sleep(0.5)
 
     # On Windows, file names with those characters bring an error
     char_to_replace = ['\\', '/', ':', '*', '?', '"', '<', '>', '|']
