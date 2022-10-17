@@ -11,6 +11,7 @@ A simple YouTube music playlist downloader, to always have your favourite music 
 ### Features :
 
 - [x] It takes the url of the YouTube playlist and the number of musics you want to download, and outputs .mp3 files.
+- [x] It adds the YouTube thumbnail to the .mp3 file created
 
 ### Next features
 
