@@ -57,30 +57,37 @@ def short_playlist(full_pl, output):
         print('1 - Download the x last musics')
         print('2 - Download a range of musics')
         print('3 - Download specific musics')
+        print('4 - Download the whole playlist (careful with big playlists !)')
 
         dl_mode = 0
-        while dl_mode not in [1, 2, 3]:
-            dl_mode = int(input('\nWhich mode do you want to use ? (1 or 2 or 3)      '))
+        while dl_mode not in [1, 2, 3, 4]:
+            dl_mode = int(input('\nWhich mode do you want to use ? (1 or 2 or 3 or 4)      '))
 
-        if dl_mode == 1:  # Good !
+        if dl_mode == 1:
             n_music = int(input('\nHow many recent musics of your playlist you want to download ?      '))
             print('\n\n')
             short_pl = full_pl[:n_music]
 
-        elif dl_mode == 2:  # Good !
+        elif dl_mode == 2:
             n_music = input('\nEnter the range of musics to download (e.g. 10-20):      ')
             print('\n\n')
             n_music = n_music.replace(' ', '')
             n_music = n_music.split('-')
             short_pl = full_pl[int(n_music[0])-1:int(n_music[1])]
+            n_music = int(n_music[1]) - int(n_music[0]) + 1
 
-        elif dl_mode == 3:  #
+        elif dl_mode == 3:
             n_music = input('\nEnter the specific musics you want to download (e.g. 1, 4, 5):      ')
             print('\n\n')
             n_music = n_music.replace(' ', '')
             n_music = n_music.split(',')
             for n in n_music:
                 short_pl.append(full_pl[int(n) - 1])
+            n_music = len(n_music)
+
+        elif dl_mode == 4:
+            short_pl = full_pl
+            n_music = len(full_pl)
                 
         existing_files = {}  # todo verify if needed
 
@@ -200,10 +207,7 @@ def download_pl(short_pl, n_mus, output):
     time_spent_min = time_spent_sec / 60
 
     print('\n\n')
-    if n_mus-len(bug_list) == n_mus:  # todo delete this, makes an errro "TypeError: unsupported operand type(s) for -: 'list' and 'int'"
-        print(f'Required music downloaded in {"%.2f"%time_spent_sec}s ({"%.2f"%time_spent_min}mins) ! ✅')
-    else:
-        print(f'Bug detected, downloaded {n_mus-len(bug_list)} musics over {n_mus} in {"%.2f"%time_spent_sec}s ({"%.2f"%time_spent_min}mins) ! 🤔')
+    print(f'{n_mus} musics downloaded in {"%.2f"%time_spent_sec}s ({"%.2f"%time_spent_min}mins) ! ✅')
 
 
 full_playlist = Playlist(playlist_URL)
