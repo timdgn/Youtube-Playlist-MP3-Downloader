@@ -13,6 +13,7 @@ from rich.progress import track
 # https://stackoverflow.com/questions/44480751/how-to-i-obtain-the-album-picture-of-a-music-in-python
 
 playlist_URL = 'https://www.youtube.com/playlist?list=FLNPzWyOogzgJktfz1Uw76hQ'
+maximum_length = 900  # 900sec = 15min
 output_path = 'music'
 
 
@@ -34,15 +35,16 @@ def mus_fetch_reformat(url):
     char_to_replace = ['\\', '/', ':', '*', '?', '"', '<', '>', '|']
     for char in char_to_replace:
         mus.title = mus.title.replace(char, '')
-            
+
     return mus
 
 
-def short_playlist(full_pl, output):
+def short_playlist(full_pl, max_length, output):
     """
     Takes a list of all the URLs of a YouTube playlist,
     and creates a short playlist containing only the musics we want
     :param full_pl: (list) List of URLs of the whole YouTube playlist
+    :param max_length: maximum length of musics is seconds
     :param output: (str) String of the output path where the musics are to be downloaded
     :return: short_pl: (list) List of URLs of only the selected YouTube videos
     :return: n_music: (int) number of musics we want to download
@@ -51,6 +53,7 @@ def short_playlist(full_pl, output):
     global n_music
     short_pl = []
     existing_files = {}
+    long_files = {}
 
     # While loop to let the user validate if he wants to keep the short playlist shown to him
     validation = 'n'
@@ -96,15 +99,24 @@ def short_playlist(full_pl, output):
         for i, URL in enumerate(short_pl):
             mus = mus_fetch_reformat(URL)
             title = mus.title
+            length = mus.length
 
             print(f'---------- N°{i + 1} ----------')
             print(f'Title: {title}')
-            print(f'Length: {datetime.timedelta(seconds=mus.length)}s')
-            print(f'URL: {URL}', end='\n\n')
+            print(f'Length: {datetime.timedelta(seconds=length)}s')
+            print(f'URL: {URL}')
 
-            # If a music already exists in the output path, add its name to a list
+            # If a music already exists in the output path, add its name to a list to avoid downloading it
             if os.path.exists(os.path.join(output, title + '.mp3')):
                 existing_files[f'{title}'] = URL
+
+            # If a music length is more than max_length, add its name to a list to avoid downloading it
+            if length > max_length and title not in existing_files.keys():
+                choice = input(f'⚠ Music longer than {max_length/60} mins, do you want to download it ? ⚠ (y/n)     ')
+                if choice not in ['y', 'Y']:
+                    long_files[f'{title}'] = URL
+
+            print('\n\n')
 
         # Validate if we keep this playlist, of if we want to set a new playlist
         validation = input('Good to download ? (y/n)      ')
@@ -112,6 +124,9 @@ def short_playlist(full_pl, output):
 
     # Remove existing urls from the short_pl list
     [short_pl.remove(URL) for URL in existing_files.values()]
+
+    # Remove long files urls from the short_pl list
+    [short_pl.remove(URL) for URL in long_files.values()]
 
     # Print if there is some musics that were already downloaded
     if len(existing_files) > 0:
@@ -165,8 +180,8 @@ def download_pl(short_pl, n_mus, output):
         if music.tag is None:
             music.initTag()
 
-        # music.tag.title = u'your_title'  # Set the title
-        # music.tag.album = u'your_album_name'  # Set the album name
+        # music.tag.title = 'your_title'  # Set the title
+        # music.tag.album = 'your_album_name'  # Set the album name
         music.tag.images.set(3,
                              open(pic_path_name, 'rb').read(),
                              'image/jpeg')
@@ -189,5 +204,5 @@ def download_pl(short_pl, n_mus, output):
 
 
 full_playlist = Playlist(playlist_URL)
-playlist, n_music = short_playlist(full_playlist, output_path)
+playlist, n_music = short_playlist(full_playlist, maximum_length, output_path)
 download_pl(playlist, n_music, output_path)
