@@ -8,7 +8,9 @@ import eyed3
 from eyed3.id3.frames import ImageFrame
 from rich.progress import track
 # import stagger
-
+# Stagger for tagging the thumbnail works, but the type of the tag is 'Other (0)' instead of 'cover_front (3)',
+# so prefer Mutagen.eyed3
+# https://stackoverflow.com/questions/44480751/how-to-i-obtain-the-album-picture-of-a-music-in-python
 
 playlist_URL = 'https://www.youtube.com/playlist?list=FLNPzWyOogzgJktfz1Uw76hQ'
 output_path = 'music'
@@ -46,9 +48,9 @@ def short_playlist(full_pl, output):
     :return: n_music: (int) number of musics we want to download
     """
 
-    global n_music # todo verify if needed
-    short_pl = []  # todo verify if needed
-    existing_files = {}  # todo verify if needed
+    global n_music
+    short_pl = []
+    existing_files = {}
 
     # While loop to let the user validate if he wants to keep the short playlist shown to him
     validation = 'n'
@@ -59,6 +61,7 @@ def short_playlist(full_pl, output):
         print('3 - Download specific musics')
         print('4 - Download the whole playlist (careful with big playlists !)')
 
+        # Option to choose between different download modes
         dl_mode = 0
         while dl_mode not in [1, 2, 3, 4]:
             dl_mode = int(input('\nWhich mode do you want to use ? (1 or 2 or 3 or 4)      '))
@@ -88,8 +91,6 @@ def short_playlist(full_pl, output):
         elif dl_mode == 4:
             short_pl = full_pl
             n_music = len(full_pl)
-                
-        existing_files = {}  # todo verify if needed
 
         # Print each music to be downloaded
         for i, URL in enumerate(short_pl):
@@ -101,7 +102,7 @@ def short_playlist(full_pl, output):
             print(f'Length: {datetime.timedelta(seconds=mus.length)}s')
             print(f'URL: {URL}', end='\n\n')
 
-            # If a music already exists, add its name to a list
+            # If a music already exists in the output path, add its name to a list
             if os.path.exists(os.path.join(output, title + '.mp3')):
                 existing_files[f'{title}'] = URL
 
@@ -132,32 +133,28 @@ def download_pl(short_pl, n_mus, output):
     """
     t1 = time()
     print('\nDownloading ...', end='\n\n')
-    bug_list = []
+
     for i, url in enumerate(track(short_pl, description='[red]Downloading ... ')):
         mus = mus_fetch_reformat(url)
         title = mus.title
         mp4_file = f'.{title}.mp4'
         mp3_file = f'{title}.mp3'
 
-        # Fetch all the streams available for the music
+        # Fetch all the streams in Dash/adaptive, audio and .mp4 format
         audios_dash_mp4 = mus.streams.filter(adaptive=True,
                                              only_audio=True,
                                              file_extension='mp4')
 
-        # Download a stream to .mp4
+        # Download the best stream to .mp4
         best_audio = audios_dash_mp4[-1]  # The last stream has the best quality
         print(f'🌟 {i+1}: {title}')
         best_audio.download(output_path=output,
                             filename=mp4_file,
                             max_retries=3)
 
-        # Convert .mp4 to .mp3
+        # Convert .mp4 to .mp3 and clean the .mp4
         ff.ffmpeg_extract_audio(os.path.join(output, mp4_file), os.path.join(output, mp3_file))
         os.remove(os.path.join(output, mp4_file))
-
-        # Keep track of a failed download
-        if not os.path.exists(os.path.join(output, mp3_file)):
-            bug_list.append(mp3_file)
 
         # Download the thumbnail
         pic_path_name = wget.download(mus.thumbnail_url, output)
@@ -180,28 +177,9 @@ def download_pl(short_pl, n_mus, output):
 
         # Clean the thumbnail file
         os.remove(pic_path_name)
-
-        # Stagger, it works but the type of the tag is 'Other (0)' instead of 'cover_front (3)',
-        # so prefer Mutagen.eyed3
-        # https://stackoverflow.com/questions/44480751/how-to-i-obtain-the-album-picture-of-a-music-in-python
-
-        # mp3 = stagger.read_tag(os.path.join(output, mp3_file))
-        # print(mp3.artist)  # prints the artist
-        # print(mp3.album)  # prints the album
-        # print(mp3.picture)  # prints the picture (didn't work with me)
-        # print('\n -1- \n')
-        #
-        # mp3.picture = pic_path_name
-        # print(mp3.picture)
-        # print('\n -2- \n')
-        #
-        # mp3.write()
-        # print('\n -3- \n')
-        #
-        # for i in mp3.frames():  # See all the tags
-        #     print(i)
-        # print('\n -4- \n')
         print('\n')
+
+    # Compute the time spent on the download part
     t2 = time()
     time_spent_sec = t2 - t1
     time_spent_min = time_spent_sec / 60
