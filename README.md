@@ -17,7 +17,7 @@ A simple YouTube music playlist downloader, to always have your favourite music 
   2. Only a range of musics (e.g. "7-12" to download only the 7th to the 12th music).
   3. Only specific musics (with their rank number in the playlist) (e.g. "7, 12" to download only the 7th and the 12th music).
   4. Setting a whole playlist download (careful with big playlists !).
-- [x] Give the choice to download **or not** musics longer than 15 mins.
+- [x] Choose to download **or not** musics longer than 15 mins.
 
 ### Next features
 

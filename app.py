@@ -21,7 +21,7 @@ def mus_fetch_reformat(url):
     """
     Takes the url of a YouTube video, and outputs a Pytube object about it.
     It refactors the name of the YouTube video to remove special characters from it
-    to avoid file name errors on Windows.
+    to avoid file name error on Windows
     :param url: URL of a YouTube video
     :return: mus: A Pytube object describing the YouTube video
     """
