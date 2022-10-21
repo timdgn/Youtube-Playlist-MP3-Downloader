@@ -181,6 +181,7 @@ def download_pl(short_pl, n_mus, output):
             music.initTag()
 
         # music.tag.title = 'your_title'  # Set the title
+        # music.tag.artist = "Token Entry"
         # music.tag.album = 'your_album_name'  # Set the album name
         music.tag.images.set(3,
                              open(pic_path_name, 'rb').read(),
