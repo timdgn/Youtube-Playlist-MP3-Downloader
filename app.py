@@ -189,7 +189,6 @@ def download_pl(short_pl, n_mus, output):
 
         # Save the tags
         music.tag.save(version=eyed3.id3.ID3_V2_3)
-        music.tag.save()
 
         # Clean the thumbnail file
         os.remove(pic_path_name)
