@@ -3,6 +3,7 @@ from os import listdir
 from os.path import isfile, join
 from time import time
 from mutagen.id3 import ID3, TPE1
+from mutagen.mp3 import MP3
 from rich.progress import track
 
 file_path = 'music'
@@ -23,6 +24,12 @@ def tagger(path):
         # Isolates the artist's name
         artist = file.split('-')[0]
         artist = artist.strip()
+
+        # Create some ID3 tags to avoid Mutagen 'ID3NoHeaderError'
+        mp3 = MP3(os.path.join(file_path, file))
+        if mp3.tags is None:
+            mp3.add_tags()
+        mp3.save()
 
         # Loads ID3, tags and saves the tag
         audio = ID3(os.path.join(file_path, file))
