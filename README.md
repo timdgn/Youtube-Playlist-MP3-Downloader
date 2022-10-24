@@ -2,12 +2,14 @@
 
 A simple YouTube music playlist downloader, to always have your favourite music in your pocket when offline 📵
 
-### How to use ?
+## 1 - How to use ?
 
 1. Install the requirements.txt 📝
 2. Run app.py & follow the instructions ✨
-3. Listen your music 🎧
+3. Run artist_tagger.py ⚡️
+4. Listen your music 🎧
 
+## 2 - app.py
 ### Features
 
 - [x] Give the url of the YouTube playlist, and it outputs .mp3 files.
@@ -22,3 +24,8 @@ A simple YouTube music playlist downloader, to always have your favourite music 
 ### Next features
 
 - [ ] Setting a GUI with PyQT or TK.
+
+## 3 - artist_tagger.py
+### Features
+
+- [x] Tags the artist name into the .mp3 metadata

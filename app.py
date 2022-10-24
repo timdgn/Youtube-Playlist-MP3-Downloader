@@ -2,15 +2,11 @@ import os
 import wget
 import datetime
 from time import sleep, time
+from rich.progress import track
 from pytube import YouTube, Playlist
 from moviepy.editor import ffmpeg_tools as ff
-import eyed3
-from eyed3.id3.frames import ImageFrame
-from rich.progress import track
-# import stagger
-# Stagger for tagging the thumbnail works, but the type of the tag is 'Other (0)' instead of 'cover_front (3)',
-# so prefer Mutagen.eyed3
-# https://stackoverflow.com/questions/44480751/how-to-i-obtain-the-album-picture-of-a-music-in-python
+from mutagen.id3 import ID3, APIC
+# https://stackoverflow.com/questions/42473832/embed-album-cover-to-mp3-with-mutagen-in-python-3
 
 playlist_URL = 'https://www.youtube.com/playlist?list=FLNPzWyOogzgJktfz1Uw76hQ'
 maximum_length = 900  # 900sec = 15min
@@ -65,6 +61,7 @@ def short_playlist(full_pl, max_length, output):
         print('4 - Download the whole playlist (careful with big playlists !)')
 
         # Option to choose between different download modes
+        short_pl = []
         dl_mode = 0
         while dl_mode not in [1, 2, 3, 4]:
             dl_mode = int(input('\nWhich mode do you want to use ? (1 or 2 or 3 or 4)      '))
@@ -174,21 +171,14 @@ def download_pl(short_pl, n_mus, output):
         # Download the thumbnail
         pic_path_name = wget.download(mus.thumbnail_url, output)
 
-        # Mutagen.eyed3, to merge the thumbnail to the .mp3
-        # https://stackoverflow.com/questions/38510694/how-to-add-album-art-to-mp3-file-using-python-3
-        music = eyed3.load(os.path.join(output, mp3_file))
-        if music.tag is None:
-            music.initTag()
-
-        # music.tag.title = 'your_title'  # Set the title
-        # music.tag.artist = "Token Entry"
-        # music.tag.album = 'your_album_name'  # Set the album name
-        music.tag.images.set(3,
-                             open(pic_path_name, 'rb').read(),
-                             'image/jpeg')
-
-        # Save the tags
-        music.tag.save(version=eyed3.id3.ID3_V2_3)
+        # mutagen.id3 to tag the thumbnail
+        audio = ID3(os.path.join(output, mp3_file))
+        with open(pic_path_name, 'rb') as album_art:
+            audio['APIC'] = APIC(encoding=3,
+                                 mime='image/jpeg',
+                                 type=3, desc=u'Cover',
+                                 data=album_art.read())
+        audio.save()
 
         # Clean the thumbnail file
         os.remove(pic_path_name)
