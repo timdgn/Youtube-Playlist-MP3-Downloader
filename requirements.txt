@@ -2,5 +2,5 @@ pytube~=12.1.0
 moviepy~=1.0.3
 mutagen~=1.46.0
 wget~=3.2
-tqdm~=4.59.0
+tqdm
 rich~=12.6.0
