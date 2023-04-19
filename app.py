@@ -8,10 +8,6 @@ from moviepy.editor import ffmpeg_tools as ff
 from mutagen.id3 import ID3, APIC
 # https://stackoverflow.com/questions/42473832/embed-album-cover-to-mp3-with-mutagen-in-python-3
 
-playlist_URL = 'https://www.youtube.com/playlist?list=FLNPzWyOogzgJktfz1Uw76hQ'
-maximum_length = 900  # 900sec = 15min
-output_path = 'music'
-
 
 def mus_fetch_reformat(url):
     """
@@ -23,16 +19,26 @@ def mus_fetch_reformat(url):
     """
 
     mus = YouTube(url)
+    while True:
+        try:
+            _ = mus.title
+            break
+        except:
+            print("Failed to get name. Retrying...")
+            sleep(1)
+            mus = YouTube(url)
+            continue
+
+    sleep(0.5)
     # If no sleep, some music names will be presented as "Video Not Available"
     # with a length of 0:05:00s
-    sleep(0.5)
 
     # On Windows, file names with those characters bring an error
     char_to_replace = ['\\', '/', ':', '*', '?', '"', '<', '>', '|']
     for char in char_to_replace:
         mus.title = mus.title.replace(char, '')
 
-    return mus
+    return mus, mus.title, mus.length
 
 
 def short_playlist(full_pl, max_length, output):
@@ -94,9 +100,7 @@ def short_playlist(full_pl, max_length, output):
 
         # Print each music to be downloaded
         for i, URL in enumerate(short_pl):
-            mus = mus_fetch_reformat(URL)
-            title = mus.title
-            length = mus.length
+            mus, title, length = mus_fetch_reformat(URL)
 
             print(f'---------- N°{i + 1} ----------')
             print(f'Title: {title}')
@@ -147,8 +151,7 @@ def download_pl(short_pl, n_mus, output):
     print('\nDownloading ...', end='\n\n')
 
     for i, url in enumerate(track(short_pl, description='[red]Downloading ... ')):
-        mus = mus_fetch_reformat(url)
-        title = mus.title
+        mus, title, _ = mus_fetch_reformat(url)
         mp4_file = f'.{title}.mp4'
         mp3_file = f'{title}.mp3'
 
@@ -192,6 +195,10 @@ def download_pl(short_pl, n_mus, output):
     print('\n\n')
     print(f'{n_mus} musics downloaded in {"%.2f"%time_spent_sec}s ({"%.2f"%time_spent_min}mins) ! ✅')
 
+
+playlist_URL = 'https://www.youtube.com/playlist?list=FLNPzWyOogzgJktfz1Uw76hQ'
+maximum_length = 900  # 900sec = 15min
+output_path = 'music'
 
 full_playlist = Playlist(playlist_URL)
 playlist, n_music = short_playlist(full_playlist, maximum_length, output_path)
