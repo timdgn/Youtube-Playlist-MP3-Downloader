@@ -45,4 +45,5 @@ def tagger(path):
     print(f'{len(music_files)} musics tagged in {"%.2f"%time_spent_sec}s ! ✅')
 
 
-tagger(file_path)
+if __name__ == '__main__':
+    tagger(file_path)

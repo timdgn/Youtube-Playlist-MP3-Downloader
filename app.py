@@ -196,10 +196,11 @@ def download_pl(short_pl, n_mus, output):
     print(f'{n_mus} musics downloaded in {"%.2f"%time_spent_sec}s ({"%.2f"%time_spent_min}mins) ! ✅')
 
 
-playlist_URL = 'https://www.youtube.com/playlist?list=FLNPzWyOogzgJktfz1Uw76hQ'
-maximum_length = 900  # 900sec = 15min
-output_path = 'music'
+if __name__ == '__main__':
+    playlist_URL = 'https://www.youtube.com/playlist?list=FLNPzWyOogzgJktfz1Uw76hQ'
+    maximum_length = 900  # 900sec = 15min
+    output_path = 'music'
 
-full_playlist = Playlist(playlist_URL)
-playlist, n_music = short_playlist(full_playlist, maximum_length, output_path)
-download_pl(playlist, n_music, output_path)
+    full_playlist = Playlist(playlist_URL)
+    playlist, n_music = short_playlist(full_playlist, maximum_length, output_path)
+    download_pl(playlist, n_music, output_path)
